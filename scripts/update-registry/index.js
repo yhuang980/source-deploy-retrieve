@@ -10,6 +10,7 @@ const update = require('./update');
 
 const { REPO_OWNER, REPO_NAME, INSTALLATION_ID, APP_ID } = process.env; 
 const BASE_BRANCH = 'develop';
+
 const REGISTRY_PATH = path.join(
   __dirname,
   '..',
@@ -72,6 +73,9 @@ async function fetchDescribeResult(source, sourceArg, apiVersion) {
     }
   } else if (source === '-u') {
     return getDescribeFromOrg(sourceArg, apiVersion);
+  } else {
+    printHelp();
+    process.exit();
   }
 }
 

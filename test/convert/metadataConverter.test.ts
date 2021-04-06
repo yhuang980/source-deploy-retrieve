@@ -109,6 +109,19 @@ describe('MetadataConverter', () => {
       expect(pipelineArgs[2].rootDestination).to.equal(packageOutput);
     });
 
+    it('should create conversion pipeline with normalized output directory', async () => {
+      await converter.convert(components, 'metadata', {
+        type: 'directory',
+        outputDirectory: './',
+        packageName,
+      });
+
+      const pipelineArgs = pipelineStub.firstCall.args;
+      validatePipelineArgs(pipelineArgs);
+      expect(pipelineArgs[2] instanceof streams.StandardWriter).to.be.true;
+      expect(pipelineArgs[2].rootDestination).to.equal(packageName);
+    });
+
     it('should return packagePath in result', async () => {
       const result = await converter.convert(components, 'metadata', {
         type: 'directory',
@@ -129,6 +142,28 @@ describe('MetadataConverter', () => {
       const expectedContents = new ComponentSet(components, mockRegistry).getPackageXml();
 
       await converter.convert(components, 'metadata', { type: 'directory', outputDirectory });
+
+      expect(writeFileStub.calledBefore(pipelineStub)).to.be.true;
+      expect(writeFileStub.firstCall.args).to.deep.equal([
+        join(packagePath, MetadataConverter.PACKAGE_XML_FILE),
+        expectedContents,
+      ]);
+    });
+
+    it('should write the fullName entry when packageName is provided', async () => {
+      const timestamp = 123456;
+      const packageName = 'examplePackage';
+      const packagePath = join(outputDirectory, packageName);
+      env.stub(Date, 'now').returns(timestamp);
+      const cs = new ComponentSet(components, mockRegistry);
+      cs.fullName = packageName;
+      const expectedContents = cs.getPackageXml();
+
+      await converter.convert(components, 'metadata', {
+        type: 'directory',
+        outputDirectory,
+        packageName,
+      });
 
       expect(writeFileStub.calledBefore(pipelineStub)).to.be.true;
       expect(writeFileStub.firstCall.args).to.deep.equal([

@@ -376,6 +376,29 @@ describe('ComponentSet', () => {
       const set = ComponentSet.fromSource({ fsPaths: ['.'], registry: mockRegistry, tree });
       expect(set.getObject()).to.deep.equal({
         Package: {
+          fullName: undefined,
+          types: [
+            {
+              name: 'DecomposedTopLevel',
+              members: ['a'],
+            },
+            {
+              name: 'MixedContentSingleFile',
+              members: ['b', 'c'],
+            },
+          ],
+          version: mockRegistry.apiVersion,
+        },
+      });
+    });
+
+    it('should return an object representing the package manifest with fullName', () => {
+      const name = 'examplePackageName';
+      const set = ComponentSet.fromSource({ fsPaths: ['.'], registry: mockRegistry, tree });
+      set.fullName = name;
+      expect(set.getObject()).to.deep.equal({
+        Package: {
+          fullName: name,
           types: [
             {
               name: 'DecomposedTopLevel',

@@ -13,7 +13,7 @@ import {
 } from './types';
 import { RegistryAccess, SourceComponent } from '../metadata-registry';
 import { promises } from 'fs';
-import { dirname, join } from 'path';
+import { dirname, join, normalize } from 'path';
 import { ensureDirectoryExists } from '../utils/fileSystemHandler';
 import {
   ComponentReader,
@@ -51,7 +51,8 @@ export class MetadataConverter {
   ): Promise<ConvertResult> {
     try {
       // it's possible the components came from a component set, so this may be redundant in some cases...
-      const manifestContents = new ComponentSet(components, this.registry).getPackageXml();
+      const cs = new ComponentSet(components, this.registry);
+      let manifestContents;
       const isSource = targetFormat === 'source';
       const tasks = [];
 
@@ -61,6 +62,10 @@ export class MetadataConverter {
 
       switch (output.type) {
         case 'directory':
+          if (output.packageName) {
+            cs.fullName = output.packageName;
+          }
+          manifestContents = cs.getPackageXml();
           packagePath = this.getPackagePath(output);
           writer = new StandardWriter(packagePath);
           if (!isSource) {
@@ -69,6 +74,10 @@ export class MetadataConverter {
           }
           break;
         case 'zip':
+          if (output.packageName) {
+            cs.fullName = output.packageName;
+          }
+          manifestContents = cs.getPackageXml();
           packagePath = this.getPackagePath(output);
           writer = new ZipWriter(packagePath);
           if (!isSource) {
@@ -113,7 +122,7 @@ export class MetadataConverter {
     const { outputDirectory, packageName, type } = outputConfig;
     if (outputDirectory) {
       const name = packageName || `${MetadataConverter.DEFAULT_PACKAGE_PREFIX}_${Date.now()}`;
-      packagePath = join(outputDirectory, name);
+      packagePath = normalize(join(outputDirectory, name));
 
       if (type === 'zip') {
         packagePath += '.zip';

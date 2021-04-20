@@ -66,7 +66,7 @@ async function getDescribeFromOrg(username, apiVersion) {
 }
 
 async function fetchDescribeResult(source, sourceArg, apiVersion) {  
-  if (source === '-f') {
+  if (source === '-p') {
     return {
       result: getDescribeFromFile(sourceArg),
       apiVersion

@@ -16,20 +16,23 @@ const REGISTRY_PATH = path.join(
   '..',
   '..',
   'src',
-  'metadata-registry',
-  'data',
+  'registry',
   'registry.json'
 );
 
+const API_VERSION_FLAG = '-a';
+const SOURCE_PATH_FLAG = '-p';
+const SOURCE_ORG_FLAG = '-u';
+
 function printHelp() {
   const message = `
-usage: registry-update apiVersion [-p <describe.json path>] [-u <org username>]
+usage: registry-update ${API_VERSION_FLAG} apiVersion [${SOURCE_PATH_FLAG} <describe.json path>] [${SOURCE_ORG_FLAG} <org username>]
 
 Update the metadata registry db with a new version of the response from a describeMetadata()
 call.
 
-A describe response can be provided from a local file using -p, or by querying an org
-with a given username using -u. If querying the response from an org, make sure it has been
+A describe response can be provided from a local file using ${SOURCE_PATH_FLAG}, OR by querying an org
+with a given username using ${SOURCE_ORG_FLAG}. If querying the response from an org, make sure it has been
 authenticated to beforehand with the Salesforce CLI.
 
 The update process only adds new entries or modifies existing ones. Please manually review
@@ -105,19 +108,48 @@ async function openPullRequest(head, apiVersion) {
   });
 }
 
+async function getArgWithFlag(flagValue) {
+  const index = process.argv.indexOf(flagValue);
+  return index > -1 && process.argv[index + 1] ? process.argv[index + 1] : null;
+}
+
+async function getRequiredArgForFlag(flagValue) {
+  const arg = getArgWithFlag(flagValue);
+  if (!arg) {
+    console.log(`Argument value ${arg} for flag ${flagValue} is invalid.`);
+    printHelp();
+    process.exit();
+  }
+}
+
+async function getSource() {
+  const pathSource = process.argv.indexOf(SOURCE_PATH_FLAG);
+  const orgSource = process.argv.indexOf(SOURCE_ORG_FLAG);
+  if (pathSource > -1 && orgSource > -1) {
+    console.log(`Please provide only one source for the describe call - either ${SOURCE_PATH_FLAG} or ${SOURCE_ORG_FLAG}`);
+    printHelp();
+    process.exit();
+  }
+  if (pathSource === -1 && orgSource === -1) {
+    console.log(`Please provide the source for the describe call - either ${SOURCE_PATH_FLAG} or ${SOURCE_ORG_FLAG}`);
+    printHelp();
+    process.exit();
+  }
+  return pathSource > -1 ? pathSource : orgSource;
+}
+
 async function main() {
-  const [source, sourceArg] = process.argv.slice(2, 5);
-  let apiVersion = process.argv[4];
+  let apiVersion = getRequiredArgForFlag(API_VERSION_FLAG);
+  const source = getSource();
+  const sourceArg = getRequiredArgForFlag(source);
 
   const describeResult = await fetchDescribeResult(source, sourceArg, apiVersion);
-
   if (!describeResult) {
     printHelp();
     process.exit();
   }
 
-  apiVersion = describeResult.apiVersion
-
+  apiVersion = describeResult.apiVersion;
   const branchName = `registry-update-v${apiVersion}`;
 
   run('Applying registry updates', () => {

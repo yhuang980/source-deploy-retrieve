@@ -53,3 +53,5 @@ The library can also be installed to another local project as a regular NPM modu
 The library uses a registry to resolve how to process metadata types. This needs to be updated on every mayor platform release to add all the new metadata types. Run the command below against an org in the latest platform version.
 
 `yarn update-registry <api version e.g. 51.0> -u <username>`
+
+This runs automatically with the use of ([auth-app](https://github.com/octokit/auth-app.js/#usage-with-octokit)).

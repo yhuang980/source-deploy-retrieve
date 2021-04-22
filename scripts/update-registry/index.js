@@ -113,7 +113,7 @@ async function openPullRequest(head, apiVersion) {
   });
 }
 
-async function getArgForFlag(flagValue) {
+function getArgForFlag(flagValue) {
   const index = process.argv.indexOf(flagValue);
   const arg = index > -1 && process.argv[index + 1] ? process.argv[index + 1] : null;
   if (!arg) {
@@ -121,7 +121,7 @@ async function getArgForFlag(flagValue) {
   }
 }
 
-async function getSource() {
+function getSource() {
   const pathSource = process.argv.indexOf(SOURCE_PATH_FLAG);
   const orgSource = process.argv.indexOf(SOURCE_ORG_FLAG);
   if (pathSource > -1 && orgSource > -1) {

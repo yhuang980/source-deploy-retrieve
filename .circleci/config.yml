@@ -248,7 +248,7 @@ workflows:
               - hold
     
   # run the update-registry script
-  check-for-registry-changes:
+  registry-check-workflow:
     triggers:
       - schedule:
           cron: '0 0 * * *'

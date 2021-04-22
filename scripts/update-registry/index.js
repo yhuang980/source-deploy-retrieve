@@ -113,10 +113,10 @@ async function openPullRequest(head, apiVersion) {
   });
 }
 
-function getArgForFlag(flagValue) {
+function getArgForFlag(flagValue, required) {
   const index = process.argv.indexOf(flagValue);
   const arg = index > -1 && process.argv[index + 1] ? process.argv[index + 1] : null;
-  if (!arg) {
+  if (required && !arg) {
     exitWithInstructions(`Required argument value ${arg} for flag ${flagValue} is invalid.`);
   }
 }
@@ -134,9 +134,9 @@ function getSource() {
 }
 
 async function main() {
-  let apiVersion = getArgForFlag(API_VERSION_FLAG);
+  let apiVersion = getArgForFlag(API_VERSION_FLAG, false);
   const source = getSource();
-  const sourceArg = getArgForFlag(source);
+  const sourceArg = getArgForFlag(source, true);
 
   const describeResult = await fetchDescribeResult(source, sourceArg, apiVersion);
   if (!describeResult) {

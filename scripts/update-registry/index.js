@@ -8,7 +8,7 @@ const { createAppAuth } = require("@octokit/auth-app");
 const { run, execSilent } = require('../util');
 const update = require('./update');
 
-const { REPO_OWNER, REPO_NAME, INSTALLATION_ID, APP_ID } = process.env; 
+const { REPO_OWNER, REPO_NAME, INSTALLATION_ID, APP_ID, SDR_BOT_KEY } = process.env; 
 const BASE_BRANCH = 'develop';
 
 const REGISTRY_PATH = path.join(
@@ -96,7 +96,7 @@ async function openPullRequest(head, apiVersion) {
     authStrategy: createAppAuth,
     auth: {
       id: APP_ID,
-      privateKey: process.env.SDR_BOT_KEY,
+      privateKey: SDR_BOT_KEY,
       installationId: INSTALLATION_ID
     }
   });

@@ -132,6 +132,20 @@ jobs:
       - store_test_results:
           path: test-results
 
+  update-registry:
+    description: 'Update registry using GS0 instance'
+    environment:
+      # alias variable created by auth and referenced by test framework
+      - SFDC_ALIAS: gs0-user
+    steps:
+      - run:
+          name: 'Authenticate to gs0 testing org'
+          shell: bash.exe
+          command: |
+            echo $SFDC_JWT_KEY | base64 --decode > gs0.key
+            sfdx force:auth:jwt:grant --clientid ${SFDC_CLIENTID} --username ${SFDC_USERNAME} --setalias ${SFDC_ALIAS} --jwtkeyfile $PWD/gs0.key --setdefaultusername --setdefaultdevhubusername
+            sfdx force:auth:list
+
   publish:
     <<: *defaults
     steps:
@@ -232,3 +246,16 @@ workflows:
               - node-12
               - run-win-tests
               - hold
+    
+  # run the update-registry script
+  check-for-registry-changes:
+    triggers:
+      - schedule:
+          cron: '0 0 * * *'
+          filters:
+            branches:
+              only:
+                - develop
+    jobs:
+      - update-registry:
+          context: local-dev-gs0

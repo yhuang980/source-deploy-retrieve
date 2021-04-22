@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Connection, AuthInfo } = require('@salesforce/core');
-const { Octokit } = require('@octokit/rest');
+const { Octokit } = require('@octokit/core');
 const { createAppAuth } = require("@octokit/auth-app");
 const { run, execSilent } = require('../util');
 const update = require('./update');

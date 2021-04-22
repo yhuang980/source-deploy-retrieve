@@ -41,6 +41,12 @@ the changes after they have been generated to ensure there were no unexpected mo
   console.log(message);
 }
 
+function exitWithInstructions(message) {
+  console.log(message);
+  printHelp();
+  process.exit();
+}
+
 async function getConnection(username) {
   return Connection.create({
     authInfo: await AuthInfo.create({ username }),
@@ -77,8 +83,7 @@ async function fetchDescribeResult(source, sourceArg, apiVersion) {
   } else if (source === '-u') {
     return getDescribeFromOrg(sourceArg, apiVersion);
   } else {
-    printHelp();
-    process.exit();
+    exitWithInstructions(`Invalid source type ${source}.`);
   }
 }
 
@@ -112,9 +117,7 @@ async function getArgForFlag(flagValue) {
   const index = process.argv.indexOf(flagValue);
   const arg = index > -1 && process.argv[index + 1] ? process.argv[index + 1] : null;
   if (!arg) {
-    console.log(`Required argument value ${arg} for flag ${flagValue} is invalid.`);
-    printHelp();
-    process.exit();
+    exitWithInstructions(`Required argument value ${arg} for flag ${flagValue} is invalid.`);
   }
 }
 
@@ -122,14 +125,10 @@ async function getSource() {
   const pathSource = process.argv.indexOf(SOURCE_PATH_FLAG);
   const orgSource = process.argv.indexOf(SOURCE_ORG_FLAG);
   if (pathSource > -1 && orgSource > -1) {
-    console.log(`Please provide only one source for the describe call - either ${SOURCE_PATH_FLAG} or ${SOURCE_ORG_FLAG}`);
-    printHelp();
-    process.exit();
+    exitWithInstructions(`Only one source is required for the describe call - either ${SOURCE_PATH_FLAG} or ${SOURCE_ORG_FLAG}`);
   }
   if (pathSource === -1 && orgSource === -1) {
-    console.log(`Please provide the source for the describe call - either ${SOURCE_PATH_FLAG} or ${SOURCE_ORG_FLAG}`);
-    printHelp();
-    process.exit();
+    exitWithInstructions(`The source for the describe call is required - either ${SOURCE_PATH_FLAG} or ${SOURCE_ORG_FLAG}`);
   }
   return pathSource > -1 ? pathSource : orgSource;
 }
@@ -141,8 +140,7 @@ async function main() {
 
   const describeResult = await fetchDescribeResult(source, sourceArg, apiVersion);
   if (!describeResult) {
-    printHelp();
-    process.exit();
+    exitWithInstructions('Describe result is empty.');
   }
 
   apiVersion = describeResult.apiVersion;

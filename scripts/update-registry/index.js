@@ -144,7 +144,8 @@ async function main() {
   }
 
   apiVersion = describeResult.apiVersion;
-  const branchName = `registry-update-v${apiVersion}`;
+  const currentVersion = require('../../package.json').version;
+  const branchName = `registry-update-v${currentVersion}`;
 
   run('Applying registry updates', () => {
     execSilent(`git checkout -b ${branchName} ${BASE_BRANCH}`)

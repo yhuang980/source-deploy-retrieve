@@ -108,15 +108,11 @@ async function openPullRequest(head, apiVersion) {
   });
 }
 
-async function getArgWithFlag(flagValue) {
+async function getArgForFlag(flagValue) {
   const index = process.argv.indexOf(flagValue);
-  return index > -1 && process.argv[index + 1] ? process.argv[index + 1] : null;
-}
-
-async function getRequiredArgForFlag(flagValue) {
-  const arg = getArgWithFlag(flagValue);
+  const arg = index > -1 && process.argv[index + 1] ? process.argv[index + 1] : null;
   if (!arg) {
-    console.log(`Argument value ${arg} for flag ${flagValue} is invalid.`);
+    console.log(`Required argument value ${arg} for flag ${flagValue} is invalid.`);
     printHelp();
     process.exit();
   }
@@ -139,9 +135,9 @@ async function getSource() {
 }
 
 async function main() {
-  let apiVersion = getRequiredArgForFlag(API_VERSION_FLAG);
+  let apiVersion = getArgForFlag(API_VERSION_FLAG);
   const source = getSource();
-  const sourceArg = getRequiredArgForFlag(source);
+  const sourceArg = getArgForFlag(source);
 
   const describeResult = await fetchDescribeResult(source, sourceArg, apiVersion);
   if (!describeResult) {

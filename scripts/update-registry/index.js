@@ -22,17 +22,17 @@ const REGISTRY_PATH = path.join(
 
 const API_VERSION_FLAG = '-a';
 const SOURCE_PATH_FLAG = '-p';
-const SOURCE_ORG_FLAG = '-u';
+const SOURCE_USERNAME_FLAG = '-u';
 
 function printHelp() {
   const message = `
-usage: registry-update ${API_VERSION_FLAG} apiVersion [${SOURCE_PATH_FLAG} <describe.json path>] [${SOURCE_ORG_FLAG} <org username>]
+usage: registry-update ${API_VERSION_FLAG} apiVersion [${SOURCE_PATH_FLAG} <describe.json path>] [${SOURCE_USERNAME_FLAG} <org username>]
 
 Update the metadata registry db with a new version of the response from a describeMetadata()
 call.
 
 A describe response can be provided from a local file using ${SOURCE_PATH_FLAG}, OR by querying an org
-with a given username using ${SOURCE_ORG_FLAG}. If querying the response from an org, make sure it has been
+with a given username using ${SOURCE_USERNAME_FLAG}. If querying the response from an org, make sure it has been
 authenticated to beforehand with the Salesforce CLI.
 
 The update process only adds new entries or modifies existing ones. Please manually review
@@ -75,12 +75,12 @@ async function getDescribeFromOrg(username, apiVersion) {
 }
 
 async function fetchDescribeResult(source, sourceArg, apiVersion) {  
-  if (source === '-p') {
+  if (source === SOURCE_PATH_FLAG) {
     return {
       result: getDescribeFromFile(sourceArg),
       apiVersion
     }
-  } else if (source === '-u') {
+  } else if (source === SOURCE_USERNAME_FLAG) {
     return getDescribeFromOrg(sourceArg, apiVersion);
   } else {
     exitWithInstructions(`Invalid source type ${source}.`);
@@ -123,12 +123,12 @@ function getArgForFlag(flagValue) {
 
 function getSource() {
   const pathSource = process.argv.indexOf(SOURCE_PATH_FLAG);
-  const orgSource = process.argv.indexOf(SOURCE_ORG_FLAG);
+  const orgSource = process.argv.indexOf(SOURCE_USERNAME_FLAG);
   if (pathSource > -1 && orgSource > -1) {
-    exitWithInstructions(`Only one source is required for the describe call - either ${SOURCE_PATH_FLAG} or ${SOURCE_ORG_FLAG}`);
+    exitWithInstructions(`Only one source is required for the describe call - either ${SOURCE_PATH_FLAG} or ${SOURCE_USERNAME_FLAG}`);
   }
   if (pathSource === -1 && orgSource === -1) {
-    exitWithInstructions(`The source for the describe call is required - either ${SOURCE_PATH_FLAG} or ${SOURCE_ORG_FLAG}`);
+    exitWithInstructions(`The source for the describe call is required - either ${SOURCE_PATH_FLAG} or ${SOURCE_USERNAME_FLAG}`);
   }
   return pathSource > -1 ? pathSource : orgSource;
 }

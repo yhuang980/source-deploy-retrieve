@@ -274,8 +274,7 @@ workflows:
               only:
                 - develop
 
-  # Scheduled workflow - check for registry updates
-  registry-check-workflow:
+  scheduled-registry-check-workflow:
     triggers:
       - schedule:
           cron: '0 6 * * 2'

@@ -272,7 +272,7 @@ workflows:
           filters:
             branches:
               only:
-                - develop
+                - enableRegistryBot
 
   scheduled-registry-check-workflow:
     triggers:

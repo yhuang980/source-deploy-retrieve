@@ -19,6 +19,9 @@ parameters:
   run-update-registry:
     type: boolean
     default: false
+  sfdx-cli-version:
+    type: string
+    default: 'latest'
 
 _refs:
   defaults: &defaults
@@ -146,6 +149,12 @@ jobs:
           channel: 'shelbys_test_channel'
           color: '#FFDEAD'
           message: 'Checking for Registry Changes'
+      - run:
+          name: 'Install CLI'
+          command: |
+              node --version
+              npm install -g sfdx-cli@<< pipeline.parameters.sfdx-cli-version >>
+              sfdx --version
       - run:
           name: 'Authenticate to gs0 testing org'
           command: |

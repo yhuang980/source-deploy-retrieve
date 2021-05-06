@@ -16,6 +16,9 @@ parameters:
   scheduled-build:
     type: string
     default: ''
+  update-registry:
+    type: boolean
+    default: false
 
 _refs:
   defaults: &defaults
@@ -138,6 +141,10 @@ jobs:
       # alias variable created by auth and referenced by test framework
       - SFDC_ALIAS: gs0-user
     steps:
+      - slack/notify:
+          channel: 'shelbys_test_channel'
+          color: '#FFDEAD'
+          message: 'Checking for Registry Changes'
       - run:
           name: 'Authenticate to gs0 testing org'
           shell: bash.exe
@@ -145,6 +152,16 @@ jobs:
             echo $SFDC_JWT_KEY | base64 --decode > gs0.key
             sfdx force:auth:jwt:grant --clientid ${SFDC_CLIENTID} --username ${SFDC_USERNAME} --setalias ${SFDC_ALIAS} --jwtkeyfile $PWD/gs0.key --setdefaultusername --setdefaultdevhubusername
             sfdx force:auth:list
+      - run:
+          name: 'Run update registry script'
+          command: |
+            echo "export REGISTRY_UPDATE_RESULT=$(scripts/update-registry/index.js)" >> $BASH_ENV
+            source $BASH_ENV
+            echo "Registry Script Result\n: ${REGISTRY_UPDATE_RESULT}"
+      - slack/notify:
+          channel: 'shelbys_test_channel'
+          color: '#FFDEAD'
+          message: 'Results from registry update script: ${REGISTRY_UPDATE_RESULT}'
 
   publish:
     <<: *defaults
@@ -246,12 +263,22 @@ workflows:
               - node-12
               - run-win-tests
               - hold
-    
-  # run the update-registry script
+
+  manual-registry-check-workflow:
+    when: << pipeline.parameters.update-registry >>
+    jobs:
+      - update-registry:
+          context: local-dev-gs0
+          filters:
+            branches:
+              only:
+                - develop
+
+  # Scheduled workflow - check for registry updates
   registry-check-workflow:
     triggers:
       - schedule:
-          cron: '0 0 * * *'
+          cron: '0 6 * * 2'
           filters:
             branches:
               only:

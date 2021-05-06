@@ -36,7 +36,13 @@
       },
       "args": ["run", "commit-init"],
       "isBackground": false
-    }
+    },
+    {
+      "label": "Update Registry",
+      "command": "./scripts/update-registry.sh",
+      "type": "shell",
+      "args": ["${input:circleCiId}"]
+    },
   ],
   "inputs": [
     {

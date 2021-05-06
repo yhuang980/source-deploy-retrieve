@@ -6,6 +6,7 @@ const { Connection, AuthInfo } = require('@salesforce/core');
 const { Octokit } = require('@octokit/core');
 const { createAppAuth } = require("@octokit/auth-app");
 const { run, execSilent } = require('../util');
+const shell = require('shelljs');
 const update = require('./update');
 
 const { REPO_OWNER, REPO_NAME, INSTALLATION_ID, APP_ID, SDR_BOT_KEY } = process.env; 
@@ -91,6 +92,7 @@ function registryHasChanges() {
   return execSilent('git status').includes('registry.json');
 }
 
+// Currently disabled due to unknown configuration values. This would be a very good nice to have.
 async function openPullRequest(head, apiVersion) {
   const app = new Octokit({
     authStrategy: createAppAuth,
@@ -161,12 +163,14 @@ async function main() {
   });
 
   if (registryHasChanges()) {
-    run('Creating pull request for registry updates', async () => {
+    run('Pushing registry updates upstream', async () => {
       execSilent(`git add ${REGISTRY_PATH}`);
       execSilent(`git commit -m "chore: update registry for v${BASE_BRANCH}"`);
       execSilent(`git push origin ${branchName}`);
 
-      await openPullRequest(branchName, apiVersion);
+      shell.echo(`Registry changes found: https://github.com/forcedotcom/source-deploy-retrieve/pull/new/${BASE_BRANCH}...${branchName}`);
+
+      // await openPullRequest(branchName, apiVersion);
     });
   }
 }

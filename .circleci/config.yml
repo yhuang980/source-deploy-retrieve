@@ -16,7 +16,7 @@ parameters:
   scheduled-build:
     type: string
     default: ''
-  update-registry:
+  run-update-registry:
     type: boolean
     default: false
 
@@ -232,7 +232,7 @@ workflows:
     when:
       and:
         - not: << pipeline.parameters.publish >>
-        - not: << pipeline.parameters.update-registry >>
+        - not: << pipeline.parameters.run-update-registry >>
     jobs:
       - node-latest
       - node-12
@@ -269,7 +269,7 @@ workflows:
               - hold
 
   manual-registry-check-workflow:
-    when: << pipeline.parameters.update-registry >>
+    when: << pipeline.parameters.run-update-registry >>
     jobs:
       - update-registry:
           context: local-dev-gs0

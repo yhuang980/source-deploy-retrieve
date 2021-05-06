@@ -156,7 +156,7 @@ jobs:
               npm install -g sfdx-cli@<< pipeline.parameters.sfdx-cli-version >>
               sfdx --version
       - run:
-          name: 'Authenticate to gs0 testing org'
+          name: 'Authenticate to gs0 test org'
           command: |
             echo "${SFDC_JWT_KEY}" | base64 -di > gs0.key
             sfdx force:auth:jwt:grant --clientid ${SFDC_CLIENTID} --username ${SFDC_USERNAME} --setalias ${SFDC_ALIAS} --jwtkeyfile $PWD/gs0.key --setdefaultusername --setdefaultdevhubusername

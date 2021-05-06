@@ -163,7 +163,7 @@ async function main() {
   if (registryHasChanges()) {
     run('Creating pull request for registry updates', async () => {
       execSilent(`git add ${REGISTRY_PATH}`);
-      execSilent(`git commit -m "chore: update registry for v${apiVersion}"`);
+      execSilent(`git commit -m "chore: update registry for v${BASE_BRANCH}"`);
       execSilent(`git push origin ${branchName}`);
 
       await openPullRequest(branchName, apiVersion);

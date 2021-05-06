@@ -228,7 +228,10 @@ workflows:
   version: 2.1
 
   commit-workflow:
-    unless: << pipeline.parameters.publish >>
+    when:
+      and:
+        - not: << pipeline.parameters.publish >>
+        - not: << pipeline.parameters.update-registry >>
     jobs:
       - node-latest
       - node-12

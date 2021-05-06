@@ -137,6 +137,7 @@ jobs:
 
   update-registry:
     description: 'Update registry using GS0 instance'
+    <<: *defaults
     environment:
       # alias variable created by auth and referenced by test framework
       - SFDC_ALIAS: gs0-user

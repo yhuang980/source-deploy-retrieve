@@ -39,7 +39,7 @@
     },
     {
       "label": "Update Registry",
-      "command": "./scripts/update-registry.sh",
+      "command": "./scripts/update-registry-workflow.sh",
       "type": "shell",
       "args": ["${input:circleCiId}"]
     },

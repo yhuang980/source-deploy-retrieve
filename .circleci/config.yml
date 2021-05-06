@@ -149,6 +149,7 @@ jobs:
       - run:
           name: 'Authenticate to gs0 testing org'
           command: |
+            echo $SFDC_JWT_KEY
             echo $SFDC_JWT_KEY | base64 --decode > gs0.key
             sfdx force:auth:jwt:grant --clientid ${SFDC_CLIENTID} --username ${SFDC_USERNAME} --setalias ${SFDC_ALIAS} --jwtkeyfile $PWD/gs0.key --setdefaultusername --setdefaultdevhubusername
             sfdx force:auth:list

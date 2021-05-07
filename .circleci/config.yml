@@ -146,7 +146,7 @@ jobs:
       - SFDC_ALIAS: gs0-user
     steps:
       - slack/notify:
-          channel: 'shelbys_test_channel'
+          channel: 'pdt_releases'
           color: '#FFDEAD'
           message: 'Checking for Registry Changes'
       - run:
@@ -158,7 +158,7 @@ jobs:
       - run:
           name: 'Authenticate to gs0 test org'
           command: |
-            echo "${SFDC_JWT_KEY}.replace(/\\n/gm, '\n')" | base64 -di > gs0.key
+            echo "${SFDC_JWT_KEY}" | base64 -di > gs0.key
             sfdx force:auth:jwt:grant --clientid ${SFDC_CLIENTID} --username ${SFDC_USERNAME} --setalias ${SFDC_ALIAS} --jwtkeyfile $PWD/gs0.key --setdefaultusername --setdefaultdevhubusername
             sfdx force:auth:list
       - run:
@@ -168,7 +168,7 @@ jobs:
             source $BASH_ENV
             echo "Registry Script Result\n: ${REGISTRY_UPDATE_RESULT}"
       - slack/notify:
-          channel: 'shelbys_test_channel'
+          channel: 'pdt_releases'
           color: '#FFDEAD'
           message: 'Results from registry update script: ${REGISTRY_UPDATE_RESULT}'
 
@@ -284,7 +284,7 @@ workflows:
           filters:
             branches:
               only:
-                - enableRegistryBot
+                - develop
 
   scheduled-registry-check-workflow:
     triggers:

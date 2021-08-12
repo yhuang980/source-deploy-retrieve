@@ -60,6 +60,33 @@ _refs:
     command: yarn ci-docs
 
 commands:
+  setup-publish:
+    steps:
+      - slack/notify:
+          channel: 'pdt_releases'
+          color: '#FFDEAD'
+          message: 'Starting Publish for SDR Library & Test Utils'
+      - add_ssh_keys: *ssh-config
+      - checkout
+      - restore_cache: *restore_cache
+      - run: *gh-config
+      - run: *install
+      - run: *gus-prepare-environment-variables
+      - run:
+          name: Bump package version
+          command: |
+            yarn bump-versions << pipeline.parameters.publish-type >>
+            git add .
+            export RELEASE_TAG="$(node -pe "require('./lerna.json').version")"
+            echo "export RELEASE_VERSION=$RELEASE_TAG" >> $BASH_ENV
+            source $BASH_ENV
+            git commit -m "chore: updated version $RELEASE_TAG"
+      - run: *build
+      - run:
+          name: Generate plugin manifest	
+          command: yarn manifest:generate
+      - run: yarn package
+
   build-artifact:
     steps: 
       - run:
@@ -126,32 +153,30 @@ jobs:
       - store_test_results:
           path: test-results
 
-  publish:
+  prepublish:
     <<: *defaults
     steps:
-      - slack/notify:
-          channel: 'pdt_releases'
-          color: '#FFDEAD'
-          message: 'Starting Publish for SDR Library'
-      - add_ssh_keys: *ssh-config
-      - checkout
-      - restore_cache: *restore_cache
-      - run: *gh-config
-      - run: *install
-      - run: *gus-prepare-environment-variables
-      - release-management/install-change-case-mgmt
-      - release-management/change-case-create
-      - run: *build
+      - setup-publish
+      - persist_to_workspace:
+          root: .
+          paths:
+              - .git
+              - packages/source-deploy-retrieve-test-utils/package.json
+              - packages/source-deploy-retrieve-test-utils/*.tgz
+              - packages/source-deploy-retrieve/package.json
+              - packages/source-deploy-retrieve/bin
+              - packages/source-deploy-retrieve/lib
+              - packages/source-deploy-retrieve/oclif.manifest.json
+              - packages/source-deploy-retrieve/messages
+              - packages/source-deploy-retrieve/README.md
+              - packages/source-deploy-retrieve/yarn.lock
+              - packages/source-deploy-retrieve/.gitignore
+
+  publish-sdr:
+    <<: *defaults
+    working_directory: ~/cli/packages/source-deploy-retrieve
+    steps:
       - run: *docs-deploy
-      - run:
-          name: Bump package version
-          command: |
-            yarn version --<< pipeline.parameters.publish-type >> --no-git-tag-version
-            git add package.json
-            export RELEASE_TAG="$(node -pe "require('./package.json').version")"
-            echo "export RELEASE_VERSION=$RELEASE_TAG" >> $BASH_ENV
-            source $BASH_ENV
-            git commit -m "chore: updated version $RELEASE_TAG"
       - run:
           name: Set .npmrc
           command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
@@ -166,6 +191,46 @@ jobs:
           channel: 'pdt_releases'
           color: '#9bcd9b'
           message: 'SDR Library v${RELEASE_VERSION} has been published to npm'
+      - slack/status:
+          channel: 'pdt_releases'
+          fail_only: true
+      - run:
+          when: on_fail
+          name: Close CTC case as Not Implemented
+          command: |
+            if [ -z "${SF_CHANGE_CASE_SFDX_AUTH_URL}" ] || [ -z "${SF_CHANGE_CASE_TEMPLATE_ID}" ] || [ -z "${SF_CHANGE_CASE_SCHEDULE_BUILD}" ]; then
+                echo "Environment not configured for CTC"
+            else
+                sfchangecase close --location "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME" --status "Not Implemented"
+            fi
+      - run:
+          when: on_success
+          name: All Good! Close CTC case/implementations
+          command: |
+            if [ -z "${SF_CHANGE_CASE_SFDX_AUTH_URL}" ] || [ -z "${SF_CHANGE_CASE_TEMPLATE_ID}" ] || [ -z "${SF_CHANGE_CASE_SCHEDULE_BUILD}" ]; then
+                echo "Environment not configured for CTC"
+            else
+                sfchangecase close --location "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+            fi
+
+  publish-sdr-test-utils:
+    <<: *defaults
+    working_directory: ~/cli/packages/source-deploy-retrieve-test-utils
+    steps:
+      - run:
+          name: Set .npmrc
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+      - run: yarn publish --non-interactive
+      - run: git push origin main
+      - run:
+          name: Tag the release and push to repo
+          command: |
+            git tag v${RELEASE_VERSION}
+            git push --tags
+      - slack/notify:
+          channel: 'pdt_releases'
+          color: '#9bcd9b'
+          message: 'SDR Test Utils Library v${RELEASE_VERSION} has been published to npm'
       - slack/status:
           channel: 'pdt_releases'
           fail_only: true
@@ -216,7 +281,20 @@ workflows:
         - run-win-tests
         - hold: # Requires manual approval in Circle Ci
             type: approval
-        - publish:
+        - publish-sdr-test-utils:
+            context:
+              - pdt-publish-restricted-context
+              - CLI_CTC
+            filters:
+              branches:
+                only:
+                  - main
+            requires:
+              - node-latest
+              - node-12
+              - run-win-tests
+              - hold
+        - publish-sdr:
             context:
               - pdt-publish-restricted-context
               - CLI_CTC

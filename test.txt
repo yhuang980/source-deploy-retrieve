@@ -1,0 +1,155 @@
+forceIgnore = new ForceIgnore('/Users/vyao/apex-recipes-force-ignore/.forceIgnore')
+
+> forceIgnore.accepts('/Users/vyao/apex-recipes-force-ignore/force-app/main/default/profiles/Admin.cls-meta.xml')
+false
+
+> forceIgnore.accepts('force-app/main/default/profiles/Admin.cls-meta.xml')
+true
+
+ComponentSet.fromSource(['/Users/vyao/apex-recipes-force-ignore/force-app/main/default/triggers/LogTrigger.trigger', '/Users/vyao/apex-recipes-force-ignore/force-app/main/default/triggers/AccountTrigger.trigger']).then(s=>set=s)
+ComponentSet.fromManifest({manifestPath: '/Users/vyao/apex-recipes-force-ignore/manifest/package.xml', resolveSourcePaths:['/Users/vyao/apex-recipes-force-ignore/force-app'], forceAddWildCards:true}).then(s=>set=s)
+
+ComponentSet.fromManifest({manifestPath: '/Users/vyao/apex-recipes-force-ignore/manifest/package.xml', forceAddWildCards:true}).then(s=>set=s)
+
+apexset = ComponentSet.fromSource({fsPaths: ['/Users/vyao/apex-recipes-force-ignore/force-app'], include: set})  
+
+
+# set is filtered by forceIgnore
+set.retrieve({usernameOrConnection: 'vyao@curious-panda-u693m0.com', output: '/Users/vyao/apex-recipes-force-ignore/force-app', merge:true}).then(s=>operation=s)
+# retrieve_result are not filtered by forceIgnore
+operation.pollStatus().then(s=>retrieve_result=s)
+# if ignore meta xml, filepath would not have subfolder
+retrieve_result.getFileResponses()
+
+zip = Buffer.from(retrieve_result.response.zipFile, 'base64') 
+# extracted_components are not filtered by forceIgnore, key of map is already wrong without subfolder
+# 'ApexClassCustomMetadataUtilties/Users/vyao/apex-recipes-force-ignore/main/default/classes/CustomMetadataUtilties.cls-meta.xml/Users/vyao/apex-recipes-force-ignore/main/default/classes/CustomMetadataUtilties.cls'
+operation.extract(zip).then(s=>extracted_components=s)
+
+new RetrieveResult(result, components)
+
+operation.getConnection().then(c=>connection=c)
+
+# contains unfiltered members in package.xml
+unpackaged = operation.components.getObject().Package.types 
+requestion_body = {apiVersion: operation.components.apiVersion, unpackaged: unpackaged}
+
+operation.pre().then(s=>async_result=s)
+
+# tree already doesnt have subfolder
+ZipTreeContainer.create(zip).then(s=>tree=s) # ignore cls, also does not have subfolder
+
+"""
+converter
+"""
+converter = new MetadataConverter(operation.options.registry)
+# ignore cls, mergeWith has the correct subfolder
+# ignore meta, mergeWith does not have the apex class source component
+outputConfig = {
+    type: 'merge',
+    mergeWith: operation.components.getSourceComponents(),
+    defaultDirectory: '/Users/vyao/apex-recipes-force-ignore',
+    }
+# if mergeWith is apex_component, then successfully throw convertion error!
+# apex_component = ComponentSet.fromSource('/Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls')
+outputConfig = {
+    type: 'merge',
+    mergeWith: apex_component,
+    defaultDirectory: '/Users/vyao/apex-recipes-force-ignore',
+    }
+# ignore cls, also does not have subfolder
+# zipComponents passed in ComponentConverter, transformer.toSourceFormat
+zipComponents = ComponentSet.fromSource({fsPaths: ['unpackaged'], registry: operation.options.registry, tree:tree}).getSourceComponents().toArray();
+
+zipCompoents[3] is 'CustomMetadataUtilties'
+const projectRoot = projectComponent.content ?? (projectComponent.xml ?? ''); 
+const key = path.relative(projectRoot, file); 
+
+# contains local path 
+# ignore class, has the correct subfolder
+converter.convert(zipComponents, 'source', outputConfig).then(s=>converted=s)
+# if does not ignore cls meta during operation
+> Uncaught:
+UnexpectedForceIgnore: Metadata xml file /Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls-meta.xml is forceignored but is required for /Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls
+# if ignore cls from the start, then proceed as normal
+# if manually add subfolder in sourceComponents, does not help
+
+zipComponentSet = new ComponentSet(zipComponents, converter.registry)
+
+# should return error_no_metadata_xml_ignore in baseSourceAdapter
+matching_adapter = new MatchingContentSourceAdapter( {
+      id: 'prompt',
+      name: 'Prompt',
+      suffix: 'prompt',
+      directoryName: 'prompts',
+      inFolder: false,
+      strictDirectoryName: false
+    },
+    operation.options.registry,
+    new ForceIgnore('/Users/vyao/apex-recipes-force-ignore/.forceIgnore'),
+    tree)
+
+
+matching_adapter = new MatchingContentSourceAdapter({
+      id: 'apextrigger',
+      name: 'ApexTrigger',
+      suffix: 'trigger',
+      directoryName: 'triggers',
+      inFolder: false,
+      strictDirectoryName: false,
+      strategies: { adapter: 'matchingContentFile' }
+    },
+    operation.options.registry,
+    new ForceIgnore('/Users/vyao/apex-recipes-force-ignore/.forceIgnore'),
+    tree)
+
+matching_adapter = new MatchingContentSourceAdapter({
+      id: 'apexclass',
+      name: 'ApexClass',
+      suffix: 'cls',
+      directoryName: 'classes',
+      inFolder: false,
+      strictDirectoryName: false,
+      strategies: { adapter: 'matchingContentFile' }
+    },
+    operation.options.registry,
+    new ForceIgnore('/Users/vyao/apex-recipes-force-ignore/.forceIgnore'),
+    tree)
+trigger_path = '/Users/vyao/apex-recipes-force-ignore/force-app/main/default/triggers/AccountTrigger.trigger'
+trigger_xml = '/Users/vyao/apex-recipes-force-ignore/force-app/main/default/triggers/AccountTrigger.trigger-meta.xml'
+path = '/Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls'
+meta_path = '/Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls-meta.xml'
+
+path_without_subfolder = '/Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/CustomMetadataUtilties.cls'
+# so matching_adapter is able to detect error
+> matching_adapter.getComponent(path)
+Uncaught:
+UnexpectedForceIgnore: Metadata xml file /Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls-meta.xml is forceignored but is required for /Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls
+    at MatchingContentSourceAdapter.getComponent (/Users/vyao/source-deploy-retrieve/lib/src/resolve/adapters/baseSourceAdapter.js:34:19)
+> matching_adapter.getComponent(path_without_subfolder)
+Uncaught:
+ExpectedSourceFilesError: /Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/CustomMetadataUtilties.cls: Expected source files for type 'ApexClass'
+    at MatchingContentSourceAdapter.populate (/Users/vyao/source-deploy-retrieve/lib/src/resolve/adapters/matchingContentSourceAdapter.js:47:19)
+    at MatchingContentSourceAdapter.getComponent (/Users/vyao/source-deploy-retrieve/lib/src/resolve/adapters/baseSourceAdapter.js:47:21)
+
+sourceAdapter is called in MetadataResolver.resolveComponent
+
+
+resolver = new MetadataResolver(operation.options.registry,  tree)
+resolver.forceIgnore = new ForceIgnore('/Users/vyao/apex-recipes-force-ignore/.forceIgnore')
+# if not ignore meta xml, both with and without subfolder return source components
+> resolver.resolveComponent(path, true)
+Uncaught:
+UnexpectedForceIgnore: Metadata xml file /Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls-meta.xml is forceignored but is required for /Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls
+    at MatchingContentSourceAdapter.getComponent (/Users/vyao/source-deploy-retrieve/lib/src/resolve/adapters/baseSourceAdapter.js:34:19)
+    at MetadataResolver.resolveComponent (/Users/vyao/source-deploy-retrieve/lib/src/resolve/metadataResolver.js:114:44)
+
+> resolver.getComponentsFromPathRecursive('/Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes', set)
+still has ignored apex classes
+> resolver.getComponentsFromPathRecursive('/Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Shared Code', set) 
+[]
+
+accountService = resolver.resolveComponent('/Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls',false)
+> undefined
+accountService_meta = resolver.resolveComponent('/Users/vyao/apex-recipes-force-ignore/force-app/main/default/classes/Custom Metadata Recipes/CustomMetadataUtilties.cls-meta.xml',false)
+> undefined

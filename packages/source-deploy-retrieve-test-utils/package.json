@@ -1,0 +1,73 @@
+{
+  "name": "@salesforce/source-deploy-retrieve-test-utils",
+  "version": "4.0.2",
+  "gusBuild": "49.1.0",
+  "description": "JavaScript toolkit providing test constants for classifications of metadata types.",
+  "main": "lib/src/index.js",
+  "author": "Salesforce",
+  "license": "BSD-3-Clause",
+  "homepage": "https://github.com/forcedotcom/source-deploy-retrieve#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forcedotcom/source-deploy-retrieve.git"
+  },
+  "bugs": {
+    "url": "https://github.com/forcedotcom/source-deploy-retrieve/issues"
+  },
+  "keywords": [
+    "Salesforce",
+    "SalesforceDX",
+    "metadata",
+    "test",
+    "utils"
+  ],
+  "files": [
+    "lib/src"
+  ],
+  "engines": {
+    "node": ">=12.11.0"
+  },
+  "dependencies": {
+    "@salesforce/source-deploy-retrieve": "3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.11.0",
+    "@typescript-eslint/eslint-plugin": "^2.22.0",
+    "@typescript-eslint/parser": "^2.22.0",
+    "deepmerge": "^4.2.2",
+    "husky": "^4.2.5",
+    "shelljs": "0.8.4",
+    "shx": "^0.3.2",
+    "typescript": "3.9.7"
+  },
+  "scripts": {
+    "build": "shx rm -rf ./lib && tsc -b",
+    "commit-init": "commitizen init cz-conventional-changelog --save-dev --save-exact --force",
+    "commit": "git-cz",
+    "format": "prettier --config .prettierrc --loglevel warn --write './{src,test,scripts}/**/*.{js,json,ts}'",
+    "lint": "eslint -c .eslintrc.json --ext .ts ./src",
+    "local:install": "./scripts/localInstall.js install",
+    "local:link": "./scripts/localInstall.js link",
+    "local:unlink": "./scripts/localInstall.js unlink"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "./{src,test}/**/*.{ts,js}": [
+      "eslint -c .eslintrc.json --fix"
+    ]
+  },
+  "volta": {
+    "node": "12.11.0",
+    "yarn": "1.22.4"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

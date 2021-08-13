@@ -72,8 +72,6 @@
   },
   "scripts": {
     "build": "shx rm -rf ./lib && tsc -b",
-    "commit-init": "commitizen init cz-conventional-changelog --save-dev --save-exact --force",
-    "commit": "git-cz",
     "format": "prettier --config .prettierrc --loglevel warn --write './{src,test,scripts}/**/*.{js,json,ts}'",
     "lint": "eslint -c .eslintrc.json --ext .ts ./src ./test",
     "local:install": "./scripts/localInstall.js install",
@@ -81,7 +79,8 @@
     "local:unlink": "./scripts/localInstall.js unlink",
     "test": "shx rm -rf ./test-results && nyc mocha && node ./scripts/verifyTestArtifacts.js",
     "coverage": "nyc report --reporter=lcov",
-    "update-registry": "node ./scripts/update-registry"
+    "update-registry": "node ./scripts/update-registry",
+    "package": "npm pack"
   },
   "husky": {
     "hooks": {

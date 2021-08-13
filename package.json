@@ -11,6 +11,7 @@
   "bugs": {
     "url": "https://github.com/forcedotcom/source-deploy-retrieve/issues"
   },
+  "type": "module",
   "keywords": [
     "Salesforce",
     "SalesforceDX",
@@ -77,10 +78,11 @@
     "commit-init": "commitizen init cz-conventional-changelog --save-dev --save-exact --force",
     "commit": "git-cz",
     "docs": "./scripts/sf-docs.js",
-    "format": "prettier --config .prettierrc --loglevel warn --write './{src,test,scripts}/**/*.{js,json,ts}'",
-    "lint": "eslint -c .eslintrc.json --ext .ts ./src ./test",
+    "format": "lerna run format",
+    "lint": "lerna run lint",
     "repl": "node --inspect ./packages/source-deploy-retrieve/scripts/repl.js",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "package": "lerna run package"
   },
   "husky": {
     "hooks": {

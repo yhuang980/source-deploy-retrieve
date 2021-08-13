@@ -17,6 +17,7 @@
       "internalConsoleOptions": "openOnSessionStart",
       "name": "Run Tests",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "args": ["test/**/*.test.ts"],
       "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "type": "node"

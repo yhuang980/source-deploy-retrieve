@@ -163,7 +163,7 @@ jobs:
               - packages/source-deploy-retrieve/package.json
               - packages/source-deploy-retrieve/*.tgz
 
-publish-sdr-test-utils:
+  publish-sdr-test-utils:
     <<: *defaults
     working_directory: ~/cli/packages/source-deploy-retrieve-test-utils
     steps:

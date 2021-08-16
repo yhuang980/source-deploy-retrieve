@@ -28,7 +28,7 @@
     "node": ">=12.11.0"
   },
   "dependencies": {
-    "@salesforce/source-deploy-retrieve": "3.0.0"
+    "@salesforce/source-deploy-retrieve": "4.0.2"
   },
   "devDependencies": {
     "@types/node": "^12.11.0",

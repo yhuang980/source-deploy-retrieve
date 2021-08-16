@@ -63,6 +63,6 @@ See the [API documentation](https://forcedotcom.github.io/source-deploy-retrieve
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for details on how to contribute to the library.
+See [CONTRIBUTING.md](../../CONTRIBUTING.md) for details on how to contribute to the library.
 
-See [developing.md](./contributing/developing.md) for details on building and testing the library locally.
+See [developing.md](../../contributing/developing.md) for details on building and testing the library locally.
